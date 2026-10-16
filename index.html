@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhysicRP</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-image:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.05),
+                    rgba(0, 0, 0, 0.05)
+                ),
+                url("preview.jpg");
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Затемнение только по краям */
+        .vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(0,0,0,0) 45%,
+                rgba(0,0,0,0.18) 100%
+            );
+        }
+
+        /* Наш блок загрузки */
+        .loading {
+            position: fixed;
+            left: 3.1%;
+            bottom: 6.5%;
+            width: 390px;
+            color: white;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 7px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+        }
+
+        .status {
+            font-size: 13px;
+            color: #e5e5e5;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+        }
+
+        .bar-container {
+            width: 390px;
+            height: 7px;
+            background: rgba(0,0,0,0.55);
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow:
+                0 0 4px rgba(0,0,0,0.8),
+                inset 0 0 2px rgba(255,255,255,0.2);
+        }
+
+        .bar {
+            width: 0%;
+            height: 100%;
+            border-radius: 5px;
+
+            background: linear-gradient(
+                90deg,
+                #00d9ff,
+                #7c4dff,
+                #ff32c8
+            );
+
+            box-shadow:
+                0 0 8px rgba(0,217,255,0.8),
+                0 0 10px rgba(255,50,200,0.5);
+
+            transition: width 0.2s ease;
+        }
+
+        .percent {
+            position: absolute;
+            left: 400px;
+            bottom: -1px;
+            font-size: 13px;
+            font-weight: 700;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+        }
+
+        .footer {
+            margin-top: 35px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.65);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="vignette"></div>
+
+    <div class="loading">
+        <div class="title">
+            Добро пожаловать на PhysicRP
+        </div>
+
+        <div class="status" id="status">
+            Подключение к серверу...
+        </div>
+
+        <div style="position: relative;">
+            <div class="bar-container">
+                <div class="bar" id="bar"></div>
+            </div>
+
+            <div class="percent" id="percent">
+                0%
+            </div>
+        </div>
+
+        <div class="footer">
+            DarkRP • RolePlay
+        </div>
+    </div>
+
+    <script>
+
+        var filesTotal = 0;
+        var filesNeeded = 0;
+        var downloaded = 0;
+
+        function updateProgress() {
+
+            var percent = 0;
+
+            if (filesTotal > 0) {
+                percent = Math.floor(
+                    ((filesTotal - filesNeeded) / filesTotal) * 100
+                );
+            }
+
+            percent = Math.max(0, Math.min(100, percent));
+
+            document.getElementById("bar").style.width =
+                percent + "%";
+
+            document.getElementById("percent").innerText =
+                percent + "%";
+        }
+
+        /* Информация о сервере */
+        function GameDetails(
+            servername,
+            serverurl,
+            mapname,
+            maxplayers,
+            steamid,
+            gamemode
+        ) {
+            document.getElementById("status").innerText =
+                "Подключение к " + servername + "...";
+        }
+
+        /* Всего файлов */
+        function SetFilesTotal(total) {
+
+            filesTotal = total;
+            filesNeeded = total;
+
+            document.getElementById("status").innerText =
+                "Подготовка файлов...";
+
+            updateProgress();
+        }
+
+        /* Осталось скачать */
+        function SetFilesNeeded(needed) {
+
+            filesNeeded = needed;
+
+            if (filesNeeded > 0) {
+                document.getElementById("status").innerText =
+                    "Загрузка файлов...";
+            } else {
+                document.getElementById("status").innerText =
+                    "Загрузка завершена...";
+            }
+
+            updateProgress();
+        }
+
+        /* Какой файл скачивается */
+        function DownloadingFile(fileName) {
+
+            if (fileName) {
+
+                var name = fileName;
+
+                /* Убираем длинные пути */
+                name = name.split("/").pop();
+                name = name.split("\\").pop();
+
+                document.getElementById("status").innerText =
+                    "Загрузка: " + name;
+            }
+
+            updateProgress();
+        }
+
+        /* Статус GMod */
+        function SetStatusChanged(status) {
+
+            if (status) {
+                document.getElementById("status").innerText =
+                    status;
+            }
+        }
+
+    </script>
+
+</body>
+</html>
